@@ -37,10 +37,10 @@
         </div>
 
         {{-- Họ tên --}}
-        <div class="mb-3">
+        <div class="mb-3 ">
             <label for="name" class="form-label">Họ và tên</label>
             <input id="name" type="text"
-                class="form-control @error('name') is-invalid @enderror"
+                class="form-control rounded-lg border border-gray-300 focus:border-gray-400 p-3 @error('name') is-invalid @enderror"
                 name="name" value="{{ old('name', $user->name) }}"
                 required autofocus autocomplete="name">
             @error('name')
@@ -52,7 +52,7 @@
         <div class="mb-3">
             <label for="email" class="form-label">Email</label>
             <input id="email" type="email"
-                class="form-control @error('email') is-invalid @enderror"
+                class="form-control rounded-lg border border-gray-300 focus:border-gray-400 p-3 @error('email') is-invalid @enderror"
                 name="email" value="{{ old('email', $user->email) }}"
                 required autocomplete="username">
             @error('email')
@@ -78,12 +78,12 @@
 
         {{-- Nút lưu --}}
         <div class="d-flex align-items-center gap-3">
-            <button type="submit" class="btn btn-primary">
+            <button type="submit" class="btn btn-info">
                 Lưu thay đổi
             </button>
 
             @if (session('status') === 'profile-updated')
-            <span class="text-success small">Đã lưu.</span>
+            <span class="text-success small">Đã lưu thay đổi vừa rồi.</span>
             @endif
         </div>
     </form>

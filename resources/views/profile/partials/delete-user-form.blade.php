@@ -34,7 +34,7 @@
                         <div class="mb-3">
                             <label for="delete_password" class="form-label">Mật khẩu</label>
                             <input id="delete_password" name="password" type="password"
-                                class="form-control @error('password', 'userDeletion') is-invalid @enderror"
+                                class="form-control rounded-lg border border-gray-300 focus:border-gray-400 p-3 @error('password', 'userDeletion') is-invalid @enderror"
                                 placeholder="Nhập mật khẩu để xác nhận">
                             @error('password', 'userDeletion')
                             <div class="invalid-feedback">{{ $message }}</div>
