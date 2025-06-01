@@ -31,6 +31,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/transactions/history', [TransactionController::class, 'history'])->name('transactions.history');
     Route::get('/dashboard', [DashboardController::class, 'index'])->middleware(['auth'])->name('dashboard');
     Route::patch('/wallets/{id}/update-balance', [WalletController::class, 'updateBalance'])->name('wallets.updateBalance');
+    Route::delete('/wallets/transactions/{id}', [WalletController::class, 'destroyTransaction'])->name('wallets.transactions.destroy');
 });
 Route::middleware(['auth'])->group(function () {
     Route::resource('transactions', TransactionController::class)->only(['index', 'store']);

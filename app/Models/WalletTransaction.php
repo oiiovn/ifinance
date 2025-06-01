@@ -9,7 +9,7 @@ class WalletTransaction extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['from_wallet_id', 'to_wallet_id', 'amount', 'note'];
+    protected $fillable = ['from_wallet_id', 'to_wallet_id', 'amount', 'note', 'user_id'];
 
     public function fromWallet()
     {
@@ -19,5 +19,10 @@ class WalletTransaction extends Model
     public function toWallet()
     {
         return $this->belongsTo(Wallet::class, 'to_wallet_id');
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(\App\Models\User::class, 'user_id');
     }
 }

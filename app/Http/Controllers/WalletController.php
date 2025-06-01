@@ -13,11 +13,12 @@ class WalletController extends Controller
     {
         $wallets = Wallet::where('user_id', auth()->id())->get();
 
-        $transactions = WalletTransaction::whereHas('fromWallet', function ($q) {
-            $q->where('user_id', auth()->id());
-        })->orWhereHas('toWallet', function ($q) {
-            $q->where('user_id', auth()->id());
-        })->latest()->paginate(10);
+        $transactions = WalletTransaction::with(['fromWallet', 'toWallet', 'user'])
+            ->whereHas('fromWallet', function ($q) {
+                $q->where('user_id', auth()->id());
+            })->orWhereHas('toWallet', function ($q) {
+                $q->where('user_id', auth()->id());
+            })->latest()->paginate(10);
 
         return view('wallets.index', compact('wallets', 'transactions'));
     }
@@ -28,6 +29,10 @@ class WalletController extends Controller
             'bank' => 'required|string|max:255',
             'balance' => 'nullable|numeric',
         ]);
+
+        // Xử lý số tiền nhập vào: loại bỏ dấu . hoặc ,
+        $balance = $request->balance ?? $request->amount ?? 0;
+        $balance = str_replace(['.', ','], '', $balance);
 
         $exists = Wallet::where('user_id', auth()->id())
             ->where('name', $request->bank)
@@ -51,7 +56,7 @@ class WalletController extends Controller
         $wallet = Wallet::create([
             'user_id'   => auth()->id(),
             'name'      => $request->bank,
-            'balance'   => $request->balance ?? 0,
+            'balance'   => $balance,
             'logo_path' => $logos[$request->bank] ?? null,
             'active'    => false,
             'type' => mb_strtolower(trim($request->bank)) === 'hàng tồn' ? 'hangton' : 'normal',
@@ -72,13 +77,19 @@ class WalletController extends Controller
         $request->validate([
             'from_wallet_id' => 'required|exists:wallets,id',
             'to_wallet_id' => 'required|exists:wallets,id|different:from_wallet_id',
-            'amount' => 'required|numeric|min:0.01',
+            'amount' => 'required|numeric|min:1',
         ]);
 
-        DB::transaction(function () use ($request) {
-            $from = Wallet::findOrFail($request->from_wallet_id);
-            $to = Wallet::findOrFail($request->to_wallet_id);
+        $from = Wallet::find($request->from_wallet_id);
+        $to = Wallet::find($request->to_wallet_id);
 
+        // 👉 Không cho chuyển nếu 1 trong 2 ví là hàng tồn
+        if ($from->type === 'hangton' || $to->type === 'hangton') {
+            return back()->with('error_balance', 'Ví Hàng tồn không được phép chuyển hoặc nhận tiền.');
+        }
+
+        // Tiếp tục xử lý chuyển tiền như bình thường
+        DB::transaction(function () use ($request, $from, $to) {
             if ($from->user_id !== auth()->id() || $to->user_id !== auth()->id()) {
                 abort(403, 'Không có quyền truy cập ví này.');
             }
@@ -97,6 +108,7 @@ class WalletController extends Controller
                 'to_wallet_id'   => $to->id,
                 'amount'         => $request->amount,
                 'note'           => $request->note,
+                'user_id'        => auth()->id(), // 👈 thêm dòng này
             ]);
         });
 
@@ -149,7 +161,8 @@ class WalletController extends Controller
                     'from_wallet_id' => null,
                     'to_wallet_id'   => $wallet->id,
                     'amount'         => $amountChange,
-                    'note'           => 'Điều chỉnh tăng thêm số dư thủ công',
+                    'note'           => 'Điều chỉnh giá trị hàng tồn kho',
+                    'user_id'        => auth()->id(), // 👈 thêm dòng này
                 ]);
             } elseif ($amountChange < 0) {
                 WalletTransaction::create([
@@ -157,10 +170,47 @@ class WalletController extends Controller
                     'to_wallet_id'   => null,
                     'amount'         => abs($amountChange),
                     'note'           => 'Điều chỉnh giảm xuống số dư thủ công',
+                    'user_id'        => auth()->id(), // 👈 thêm dòng này
                 ]);
             }
         });
 
         return redirect()->back()->with('success', 'Cập nhật số dư thành công!');
+    }
+
+    public function destroyTransaction($id)
+    {
+        $tran = WalletTransaction::findOrFail($id);
+
+        // Kiểm tra quyền
+        if (
+            optional($tran->fromWallet)->user_id !== auth()->id() &&
+            optional($tran->toWallet)->user_id !== auth()->id()
+        ) {
+            abort(403, 'Không có quyền với giao dịch này.');
+        }
+
+        // Kiểm tra thời gian tạo < 3 phút
+        if (now()->diffInMinutes($tran->created_at) >= 3) {
+            return redirect()->back()->with('error', 'Chỉ có thể huỷ giao dịch trong vòng 3 phút.');
+        }
+
+        DB::transaction(function () use ($tran) {
+            // Trả lại số dư
+            if ($tran->from_wallet_id) {
+                $from = Wallet::find($tran->from_wallet_id);
+                $from->increment('balance', $tran->amount);
+            }
+
+            if ($tran->to_wallet_id) {
+                $to = Wallet::find($tran->to_wallet_id);
+                $to->decrement('balance', $tran->amount);
+            }
+
+            // Xoá giao dịch
+            $tran->delete();
+        });
+
+        return redirect()->back()->with('success', 'Đã huỷ và khôi phục số dư.');
     }
 }
