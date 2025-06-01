@@ -46,8 +46,6 @@ class DashboardController extends Controller
         /* ---------- 3. Danh sách ví để hiển thị trên dashboard ---------- */
         $wallets = Wallet::where('user_id', auth()->id())->get();
         /* ---------- 3. Báo cáo RÚT TIỀN SHOP ---------- */
-        /* ---------- 3. Báo cáo RÚT TIỀN SHOP ---------- */
-        /* ---------- 3. Báo cáo RÚT TIỀN SHOP ---------- */
         $shopWithdrawals = Transaction::where('type', 'ruttien')
             ->where('user_id', auth()->id())
             ->whereNotNull('related_name')  // chỉ lấy giao dịch có tên shop
