@@ -21,7 +21,7 @@
                 </li>
                 <li class="nav-item">
                     <a class="nav-link text-primary" href="{{ route('congno.index') }}">
-                        📌 Quản lý Công Nợ Vũ
+                        📌 Quản lý Công Nợ 
                     </a>
                 </li>
 
