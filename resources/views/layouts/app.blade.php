@@ -39,15 +39,15 @@
 
     {{-- Header --}}
     @isset($header)
-        <header class="bg-white border-bottom py-1 shadow-sm mb-2">
-            <div class="container-fluid px-2 ">
-                <h1 class="h5 m-0">{{ $header }}</h1>
-            </div>
-        </header>
+    <header class="bg-white border-bottom py-1 shadow-sm mb-2">
+        <div class="container-fluid px-2 ">
+            <h1 class="h5 m-0">{{ $header }}</h1>
+        </div>
+    </header>
     @endisset
 
     {{-- Page Content --}}
-    <main class="container-fluid px-4 bg-light-subtle p-4">
+    <main class="container-fluid px-4 bg-light-subtle p-4" style="min-height: 100vh;">
         {{ $slot ?? '' }}
         @yield('content')
     </main>
@@ -80,4 +80,5 @@
     {{-- Extra Scripts --}}
     @yield('scripts')
 </body>
+
 </html>
