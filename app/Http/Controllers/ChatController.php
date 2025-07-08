@@ -10,20 +10,20 @@ use App\Models\ScamReport;
 
 class ChatController extends Controller
 {
-   public function search(Request $request)
+    public function search(Request $request)
     {
         $result = ScamReport::with('images')
             ->when($request->filled('account'), function ($query) use ($request) {
                 $query->where('scammer_account', 'LIKE', '%' . $request->account . '%')
-                      ->orWhere('scammer_name', 'LIKE', '%' . $request->account . '%');
-            })
-            ->when($request->filled('bank'), function ($query) use ($request) {
-                $query->where('bank', $request->bank);
+                    ->orWhere('scammer_name', 'LIKE', '%' . $request->account . '%');
             })
             ->get();
 
-        return view('welcome', compact('result'));
+        $reportCount = ScamReport::count(); // Tổng số lượt tố cáo
+
+        return view('welcome', compact('result', 'reportCount'));
     }
+
     public function reply(Request $request)
     {
         $text = $request->message;
