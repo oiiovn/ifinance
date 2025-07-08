@@ -5,6 +5,8 @@ use App\Http\Controllers\WalletController;
 use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DebtController;
+use App\Http\Controllers\ChatController;
+use App\Http\Controllers\ScamReportController;
 
 use Illuminate\Support\Facades\Route;
 
@@ -45,6 +47,12 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/congno', [DebtController::class, 'index'])->name('congno.index');
     Route::post('/congno/pay', [DebtController::class, 'pay'])->name('congno.pay');
 });
+Route::post('/gpt-chat', [ChatController::class, 'handle']);
+Route::view('/report-scam', 'report-scam')->name('scam.report.form');
+Route::post('/report-scam-submit', [ScamReportController::class, 'submit'])->name('scam.report.submit');
+Route::get('/', fn() => view('welcome'))->name('scam.report.form');
+Route::get('/check-scam', [ChatController::class, 'search'])->name('scam.search');
+Route::post('/api/chatbot', [ChatController::class, 'reply']);
 
 
 
