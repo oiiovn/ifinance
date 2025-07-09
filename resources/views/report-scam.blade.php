@@ -21,11 +21,12 @@
             padding: 32px 28px 24px 28px;
         }
 
-        .scam-lock  {
+        .scam-lock {
             font-size: 48px;
-            color:rgb(0, 0, 0);
+            color: rgb(0, 0, 0);
             text-align: center;
         }
+
         .alert-success {
             font-size: 20px;
             color: #155724;
@@ -159,7 +160,7 @@
             <div class="row g-3">
                 <div class="col-md-6">
                     <label class="form-label">Tên chủ tài khoản <span class="required">*</span></label>
-                    <input type="text" name="scammer_name" class="form-control" required placeholder="Chủ tài khoản nhận tiền">
+                    <input type="text" name="scammer_name" class="form-control upper-nosign" required placeholder="Chủ tài khoản nhận tiền">
                 </div>
                 <div class="col-md-6">
                     <label class="form-label">Số tài khoản <span class="required">*</span></label>
@@ -204,21 +205,21 @@
                     </select>
                 </div>
                 <div class="col-md-6">
-                    <label class="form-label">Link Facebook (nếu có)</label>
+                    <label class="form-label">Link Facebook/zalo (nếu có)</label>
                     <input type="text" name="scammer_facebook" class="form-control" placeholder="Link facebook kẻ lừa đảo">
                 </div>
             </div>
-            <div class="scam-upload-box mt-3 mb-2">
+            <!-- <div class="scam-upload-box mt-3 mb-2">
                 <label class="scam-upload-label" for="scam-images">
                     <i class="fa fa-plus"></i> Upload bill chuyển tiền, ảnh chụp đoạn chat, v.v....
                 </label>
                 <input type="file" id="scam-images" name="images[]" multiple accept="image/*">
                 <div id="selected-files" style="font-size: 14px; margin-top: 8px; color: #333;"></div>
-            </div>
-            <div class="scam-note">
+            </div> -->
+            <!-- <div class="scam-note">
                 <i class="fa fa-exclamation-triangle"></i> Mẹo: Tải lên từng ảnh một sẽ nhanh hơn.
-            </div>
-            <div class="scam-warning">
+            </div> -->
+            <div class="scam-warning pt-2">
                 <i class="fa fa-exclamation-triangle"></i> Đơn tố cáo chỉ được duyệt khi có bằng chứng rõ ràng và sẽ bị gỡ nếu Zalo liên hệ không tìm kiếm được.
             </div>
             <div class="mb-3 mt-2">
@@ -282,6 +283,20 @@
                     label.style.color = '#0099ff';
                     fileList.innerHTML = '';
                 }
+            });
+        });
+
+        function removeVietnameseTones(str) {
+            str = str.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+            return str.replace(/đ/g, 'd').replace(/Đ/g, 'D');
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const nameInput = document.querySelector('.upper-nosign');
+            nameInput.addEventListener('input', function() {
+                let raw = this.value;
+                let noSign = removeVietnameseTones(raw);
+                this.value = noSign.toUpperCase();
             });
         });
     </script>
