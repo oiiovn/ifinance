@@ -23,7 +23,7 @@ class ScamReportController extends Controller
             'reporter_zalo',
             'confirm_type',
         ]);
-        $data['status'] = 'pending';
+        $data['status'] = 'đã duyệt';
 
         $report = ScamReport::create($data);
 

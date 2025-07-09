@@ -87,16 +87,7 @@
                 <strong>Loại xác nhận:</strong> {{ $r->confirm_type }}<br>
                 <strong>Trạng thái:</strong> {{ $r->status }}<br>
 
-                {{-- Ảnh đính kèm --}}
-                @if ($r->images && count($r->images))
-                <div class="mt-2 d-flex flex-wrap gap-2">
-                    @foreach($r->images as $img)
-                    <a href="{{ asset('storage/' . $img->image_path) }}" target="_blank">
-                        <img src="{{ asset('storage/' . $img->image_path) }}" alt="Ảnh scam" width="120" style="border-radius:8px; border:1px solid #ccc;">
-                    </a>
-                    @endforeach
-                </div>
-                @endif
+                
             </li>
             @endforeach
         </ul>
